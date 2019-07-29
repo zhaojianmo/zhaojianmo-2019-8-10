@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF" monitorInterval="30">
+  <Properties>
+    <!-- 日志输出格式 -->
+    <Property name="consolePattern">%d{HH:mm:ss,SSS} [%p] [%t] %cyan{%c{36} @%L} %msg%n</Property>
+  </Properties>
+
+  <Appenders>
+    <!-- 控制台打印 -->
+    <Console name="ConsoleLog" target="SYSTEM_OUT">
+      <Filters>
+        <!-- 控制台打印日志的级别 -->
+        <ThresholdFilter level="INFO"/>
+      </Filters>
+      <PatternLayout pattern="${consolePattern}"/>
+    </Console>
+
+  </Appenders>
+
+  <Loggers>
+
+    <Logger name="org.springframework" level="INFO"/>
+    <Logger name="com.alibaba.druid" level="INFO"/>
+    <Logger name="com.sm.crm.dao" level="DEBUG" additivity="false">
+      <AppenderRef ref="ConsoleLog"/>
+    </Logger>
+    <Root level="DEBUG">
+      <AppenderRef ref="ConsoleLog"/>
+    </Root>
+  </Loggers>
+
+</Configuration>
