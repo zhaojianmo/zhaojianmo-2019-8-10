@@ -76,6 +76,7 @@ public class UserController {
     Map<String, String> map = new HashMap<>();
     map.put("msg", "ok");
     System.out.println();
+    System.out.println(2);
     return map;
   }
 
