@@ -75,6 +75,7 @@ public class UserController {
     filename.transferTo(file);
     Map<String, String> map = new HashMap<>();
     map.put("msg", "ok");
+    System.out.println();
     return map;
   }
 
