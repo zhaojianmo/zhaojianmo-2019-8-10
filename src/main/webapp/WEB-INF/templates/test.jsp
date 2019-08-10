@@ -11,6 +11,15 @@
   <title>Title</title>
 </head>
 <body>
-${users}
+  <form action="upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="filename" multiple/>
+    <input type="submit"/>
+  </form>
+
+
+<%--  <img src="/test702/"/>--%>
+
+  <img src="http://localhost:8080/test702/download1?path=upload/日式寿司.jpg"/>tu
+  <a href="http://localhost:8080/test702/download1?path=upload/日式寿司.jpg">下载</a>
 </body>
 </html>

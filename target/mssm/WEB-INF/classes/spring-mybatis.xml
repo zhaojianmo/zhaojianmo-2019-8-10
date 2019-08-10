@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx https://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+  <!-- 引入配置文件 两种引入配置文件的方式-->
+  <!-- <context:property-placeholder location="classpath:jdbc.properties"/> -->
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="locations">
+      <list>
+        <value>classpath:datasource.properties</value>
+      </list>
+    </property>
+    <!-- 外部配置文件 数据出错  保证代码继续运行 -->
+    <property name="ignoreUnresolvablePlaceholders" value="true"></property>
+  </bean>
+
+  <!-- 数据源 Druid-->
+  <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"  init-method="init"
+        destroy-method="close">
+    <property name="driverClassName" value="${jdbc.driver}"></property>
+    <property name="url" value="${jdbc.url}"></property>
+    <property name="username" value="${jdbc.username}"></property>
+    <property name="password" value="${jdbc.password}"></property>
+  </bean>
+
+  <!-- sessionFactory -->
+  <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource"></property>
+    <property name="mapperLocations" value="classpath:com/zhao/dao/*.xml"></property><!-- 把指定包下的所有映射文件包含进来。 -->
+    <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+  </bean>
+  <!-- dao注入到spring中 -->
+  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <property name="basePackage" value="com.zhao.dao"/>
+    <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"/>
+  </bean>
+
+  <!-- 扫描指定包下的dao接口，自动创建代理对象,交给容器，要依赖于SqlSessionFactory，还要知道具体包。 -->
+  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <property name="basePackage" value="com.javasm.*.dao"></property>
+    <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"></property><!-- 指定SqlSessionFactoryBean的id -->
+  </bean>
+
+  <!-- spring的事务管理服务 -->
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource"></property>
+  </bean>
+
+  <!-- 注解式事务的开关，@Transactional -->
+  <tx:annotation-driven transaction-manager="transactionManager"/>
+
+  <!-- 事务通知 -->
+  <!-- 事务生效规则 -->
+  <tx:advice transaction-manager="transactionManager" id="txAdvice">
+    <tx:attributes>
+      <!-- 增删改的方法，必须事务，带有@Transactional注解，不带的话，自动开事务 -->
+      <tx:method name="add*" propagation="REQUIRED"/>
+      <tx:method name="insert*" propagation="REQUIRED"/>
+      <tx:method name="update*" propagation="REQUIRED"/>
+      <tx:method name="upt*" propagation="REQUIRED"/>
+      <tx:method name="del*" propagation="REQUIRED"/>
+      <tx:method name="delete*" propagation="REQUIRED"/>
+      <tx:method name="remove*" propagation="REQUIRED"/>
+      <!-- 查询方法支持事务，带有事务的话支持，不带的话不加事务 -->
+      <tx:method name="sel*" propagation="SUPPORTS"/>
+      <tx:method name="query*" propagation="SUPPORTS"/>
+      <tx:method name="get*" propagation="SUPPORTS"/>
+    </tx:attributes>
+  </tx:advice>
+
+  <aop:config>
+    <aop:pointcut expression="execution(* com.zhao.service.*.*(..))" id="servicePointCut"/>
+    <aop:advisor advice-ref="txAdvice" pointcut-ref="servicePointCut"/>
+  </aop:config>
+
+
+</beans>

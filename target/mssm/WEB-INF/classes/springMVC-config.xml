@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+  <!-- 只扫描@Controller注解-->
+  <context:component-scan base-package="com.zhao" use-default-filters="false">
+    <context:include-filter expression="org.springframework.stereotype.Controller" type="annotation"/>
+  </context:component-scan>
+
+  <aop:aspectj-autoproxy proxy-target-class="true"/>
+  <!--  视图解析器-->
+  <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="prefix" value="/WEB-INF/templates/"/>
+    <property name="suffix" value=".jsp"/>
+  </bean>
+
+  <!-- 消息转换器-->
+  <mvc:annotation-driven>
+    <!-- 不使用默认的jackson-->
+    <mvc:message-converters register-defaults="false">
+      <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4">
+        <property name="supportedMediaTypes">
+          <list>
+            <value>text/html;charset=UTF-8</value>
+            <value>application/json;charset=UTF-8</value>
+          </list>
+        </property>
+      </bean>
+    </mvc:message-converters>
+  </mvc:annotation-driven>
+
+  <!-- 静态资源文件夹-->
+  <mvc:resources mapping="/static/**" location="/static/" />
+  <mvc:resources mapping="/upload/**" location="/upload/" />
+  <!-- 上传下载文件解析-->
+  <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <property name="defaultEncoding" value="UTF-8" />
+    <property name="maxUploadSizePerFile" value="50000000" />
+    <property name="maxInMemorySize" value="10000000" />
+    <!-- 上传缓存文件夹-->
+    <property name="uploadTempDir" value="/upload/temp/" />
+  </bean>
+
+</beans>
